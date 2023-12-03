@@ -44,6 +44,6 @@ class Policy(torch.nn.Module):
         x_c = self.fc3_c(x_c)
 
         action_mean = torch.tanh(x_a)
-        action_dist = MultivariateNormal(action_mean, scale_tril=torch.diag(0.2 * np.exp(self.actor_logstd) * torch.ones(self.action_space)))
+        action_dist = MultivariateNormal(action_mean, scale_tril=torch.diag(0.15 * np.exp(self.actor_logstd) * torch.ones(self.action_space)))
 
         return action_dist, x_c
