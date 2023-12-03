@@ -6,6 +6,7 @@
 #     5. reward scaling
 #     ~~6. observation scaling~~
 #     7. reward clipping
+#     8. increase variance
 
 from .agent_base import BaseAgent
 from .ppo_utils import Policy
@@ -26,6 +27,7 @@ class PPOExtension(PPOAgent):
         # self.env = gym.wrappers.TransformObservation(self.env, lambda reward: np.clip(reward, -10, 10))
         self.env = gym.wrappers.NormalizeReward(self.env)
         # self.env = gym.wrappers.TransformReward(self.env, lambda reward: np.clip(reward, -10, 10))
+        self.policy.set_variance_multiplier(0.3)
     
     def ppo_update(self, states, actions, rewards, next_states, dones, old_log_probs, targets):
         action_dists, values = self.policy(states)
@@ -44,11 +46,11 @@ class PPOExtension(PPOAgent):
 
         policy_objective = policy_objective.mean()
         entropy = action_dists.entropy().mean()
-        loss = policy_objective + value_loss - 0.001 * self.policy.actor_logstd * entropy # decreasing entropy bonus
+        loss = policy_objective + value_loss - 0.002 * self.policy.actor_logstd * entropy # decreasing entropy bonus
 
         self.optimizer.zero_grad()
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.policy.parameters(), 0.05) # clip gradient norm 
+        torch.nn.utils.clip_grad_norm_(self.policy.parameters(), 0.5) # clip gradient norm 
         self.optimizer.step()
     
     def train_iteration(self,ratio_of_episodes):
