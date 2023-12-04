@@ -46,7 +46,7 @@ class PPOExtension(PPOAgent):
 
         policy_objective = policy_objective.mean()
         entropy = action_dists.entropy().mean()
-        loss = policy_objective + value_loss - 0.002 * self.policy.actor_logstd * entropy # decreasing entropy bonus
+        loss = policy_objective + 0.5*value_loss - 0.002 * self.policy.actor_logstd * entropy # decreasing entropy bonus
 
         self.optimizer.zero_grad()
         loss.backward()
